@@ -5,7 +5,19 @@ export const convertLightness = (l: number): number => {
 };
 
 export const getDarkColors = (colors: HSLColor[]): HSLColor[] => {
-  return colors;
+  console.log({
+    h: colors[0].h,
+    newH: (colors[0].h + 60) % 360,
+  });
+  const newColors = colors.map((color) => ({
+    h: (color.h + 60) % 360, // Add 60 to hue and keep it within 0-360 range
+    s: color.s,
+    l: color.l,
+  }));
+  console.log({
+    newColors,
+  });
+  return newColors;
 };
 
 export const getLightColors = (colors: HSLColor[]): HSLColor[] => {

@@ -16,9 +16,8 @@ export function ColorPalettePreview({
   mode,
   onCopy,
   onDownload,
+  colors,
 }: ColorPalettePreviewProps) {
-  const colors = useAtomValue(colorsAtom);
-
   const isDark = mode === "dark";
   const title = isDark ? "Paleta do Modo Escuro" : "Paleta do Modo Claro";
   const bgClass = isDark ? "bg-[#222] text-white" : "bg-white";

@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { toast, Toaster } from "sonner";
 
 import { colorsAtom } from "@/components/color-palette/store";
-import { useAtomValue } from "jotai";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 import { ColorConfigurationCard } from "../components/color-palette/ColorConfigurationCard";
 import { ColorPalettePreview } from "../components/color-palette/ColorPalettePreview";
 import {
-  encodePaletteToUrl,
   getDarkColors,
   getLightColors,
 } from "../components/color-palette/colorUtils";
@@ -14,20 +14,47 @@ import { GlobalHueAdjuster } from "../components/color-palette/GlobalHueAdjuster
 import { PageHeader } from "../components/color-palette/PageHeader";
 import type { ColorPaletteMode } from "../components/color-palette/types";
 
+type SearchParams = {
+  colors?: {
+    h: number;
+    s: number;
+    l: number;
+  }[];
+};
+
 export const Route = createFileRoute("/")({
   component: ColorPaletteGenerator,
+  validateSearch: (search: Record<string, unknown>): SearchParams => {
+    // validate and parse the search params into a typed state
+    return {
+      colors: search?.colors as { h: number; s: number; l: number }[],
+    };
+  },
 });
 
 export default function ColorPaletteGenerator() {
-  const colors = useAtomValue(colorsAtom);
+  const [colors, setColors] = useAtom(colorsAtom);
+
+  const { colors: searchColors } = Route.useSearch();
+
+  console.log(searchColors);
 
   // Função para copiar URL com a paleta atual
+  const router = useRouterState();
   const shareUrl = () => {
-    const encoded = encodePaletteToUrl(colors);
-    const url = `${window.location.origin}${window.location.pathname}?p=${encoded}`;
+    const path = router.location.href;
+    console.log(path);
+    const url = `${window.location.origin}${path}`;
     navigator.clipboard.writeText(url);
     toast.success("URL da paleta copiada para a área de transferência");
   };
+
+  useEffect(() => {
+    console.log("searchColors", searchColors);
+    if (searchColors) {
+      setColors(searchColors);
+    }
+  }, [searchColors]);
 
   const copyToClipboard = (mode: ColorPaletteMode) => {
     const colorsToUse =
@@ -66,6 +93,11 @@ export default function ColorPaletteGenerator() {
 
   const darkColors = getDarkColors(colors);
   const lightColors = getLightColors(colors);
+
+  console.log({
+    darkColors,
+    lightColors,
+  });
 
   return (
     <div className="container mx-auto py-10 space-y-8">

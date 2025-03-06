@@ -14,18 +14,32 @@ export function ColorInput() {
   function onUpdate({
     field,
     value,
+    index,
   }: {
     field: keyof HSLColor;
     value: number;
+    index: number;
   }) {
-    const newColors = colors.map((color) => ({
-      ...color,
-      [field]: value,
-    }));
-
-    console.log(newColors);
-
-    setColors(newColors);
+    if (field === "h") {
+      // Update hue for all colors
+      const newColors = colors.map((color) => ({
+        ...color,
+        h: value,
+      }));
+      setColors(newColors);
+    } else {
+      // Update only the current color for saturation and lightness
+      const newColors = colors.map((color, i) => {
+        if (i === index) {
+          return {
+            ...color,
+            [field]: value,
+          };
+        }
+        return color;
+      });
+      setColors(newColors);
+    }
   }
 
   function onRemove(index: number) {
@@ -49,6 +63,7 @@ export function ColorInput() {
                   onUpdate({
                     field: "h",
                     value: Number.parseInt(e.target.value) || 0,
+                    index,
                   })
                 }
               />
@@ -65,6 +80,7 @@ export function ColorInput() {
                   onUpdate({
                     field: "s",
                     value: Number.parseInt(e.target.value) || 0,
+                    index,
                   })
                 }
               />
@@ -81,6 +97,7 @@ export function ColorInput() {
                   onUpdate({
                     field: "l",
                     value: Number.parseInt(e.target.value) || 0,
+                    index,
                   })
                 }
               />
