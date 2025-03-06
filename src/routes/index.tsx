@@ -1,31 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { toast, Toaster } from "sonner";
 
+import { colorsAtom } from "@/components/color-palette/store";
+import { useAtomValue } from "jotai";
 import { ColorConfigurationCard } from "../components/color-palette/ColorConfigurationCard";
 import { ColorPalettePreview } from "../components/color-palette/ColorPalettePreview";
-import { GlobalHueAdjuster } from "../components/color-palette/GlobalHueAdjuster";
-import { PageHeader } from "../components/color-palette/PageHeader";
-import type {
-  ColorPaletteMode,
-  HSLColor,
-} from "../components/color-palette/types";
 import {
   encodePaletteToUrl,
   getDarkColors,
   getLightColors,
 } from "../components/color-palette/colorUtils";
+import { GlobalHueAdjuster } from "../components/color-palette/GlobalHueAdjuster";
+import { PageHeader } from "../components/color-palette/PageHeader";
+import type { ColorPaletteMode } from "../components/color-palette/types";
 
 export const Route = createFileRoute("/")({
   component: ColorPaletteGenerator,
 });
 
 export default function ColorPaletteGenerator() {
-  const [colors, setColors] = useState<HSLColor[]>([
-    { h: 222, s: 50, l: 10 },
-    { h: 222, s: 50, l: 70 },
-    { h: 222, s: 50, l: 90 },
-  ]);
+  const colors = useAtomValue(colorsAtom);
 
   // Função para copiar URL com a paleta atual
   const shareUrl = () => {
@@ -33,32 +27,6 @@ export default function ColorPaletteGenerator() {
     const url = `${window.location.origin}${window.location.pathname}?p=${encoded}`;
     navigator.clipboard.writeText(url);
     toast.success("URL da paleta copiada para a área de transferência");
-  };
-
-  const addColor = () => {
-    setColors([...colors, { h: 200, s: 100, l: 50 }]);
-  };
-
-  const removeColor = (index: number) => {
-    if (colors.length > 1) {
-      setColors(colors.filter((_, i) => i !== index));
-    } else {
-      toast.error("Você precisa manter pelo menos uma cor na paleta");
-    }
-  };
-
-  const updateColor = (index: number, field: keyof HSLColor, value: number) => {
-    const newColors = [...colors];
-
-    // Garante que os valores estejam dentro dos limites válidos
-    if (field === "h") {
-      value = Math.max(0, Math.min(360, value));
-    } else if (field === "s" || field === "l") {
-      value = Math.max(0, Math.min(100, value));
-    }
-
-    newColors[index] = { ...newColors[index], [field]: value };
-    setColors(newColors);
   };
 
   const copyToClipboard = (mode: ColorPaletteMode) => {
@@ -94,17 +62,6 @@ export default function ColorPaletteGenerator() {
     toast.success(
       `Sua paleta do modo ${mode === "dark" ? "escuro" : "claro"} foi baixada.`
     );
-  };
-
-  const updateGlobalHue = (shift: number) => {
-    const newColors = colors.map((color) => {
-      return {
-        ...color,
-        h: shift,
-      };
-    });
-
-    setColors(newColors);
   };
 
   const darkColors = getDarkColors(colors);

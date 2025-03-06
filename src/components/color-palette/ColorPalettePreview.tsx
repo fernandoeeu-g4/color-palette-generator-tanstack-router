@@ -1,9 +1,9 @@
+import { useAtomValue } from "jotai";
 import { Copy, Download } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import type { ColorPaletteMode, HSLColor } from "./types";
-import { useAtom, useAtomValue } from "jotai";
 import { colorsAtom } from "./store";
+import type { ColorPaletteMode, HSLColor } from "./types";
 
 type ColorPalettePreviewProps = {
   mode: ColorPaletteMode;
